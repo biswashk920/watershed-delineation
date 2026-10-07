@@ -21,6 +21,8 @@ Input Data/*
 !Input Data/.gitkeep
 Output Data/*
 !Output Data/.gitkeep
+!Output Data/watershedDEM.png
+!Output Data/watershedDEM_with_boundary.png
 Preprocessing/*
 !Preprocessing/.gitkeep
 Pre processing/*
