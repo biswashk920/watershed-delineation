@@ -1,0 +1,33 @@
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Jupyter runtime files and local checkpoints
+.ipynb_checkpoints/
+.jupyter/
+
+# Local credentials and secrets
+.env
+.env.*
+!.env.example
+credentials
+service-account*.json
+.config/earthengine/
+
+# Generated geospatial inputs, outputs, and processing intermediates
+Input Data/*
+!Input Data/.gitkeep
+Output Data/*
+!Output Data/.gitkeep
+Preprocessing/*
+!Preprocessing/.gitkeep
+Pre processing/*
+!Pre processing/.gitkeep
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
