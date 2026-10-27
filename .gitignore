@@ -23,6 +23,9 @@ Output Data/*
 !Output Data/.gitkeep
 !Output Data/watershedDEM.png
 !Output Data/watershedDEM_with_boundary.png
+!Output Data/feature_figures/
+Output Data/feature_figures/*
+!Output Data/feature_figures/*.png
 Preprocessing/*
 !Preprocessing/.gitkeep
 Pre processing/*
