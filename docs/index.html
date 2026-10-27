@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Interactive terrain and hydrology viewer for a watershed in Nepal.">
+    <title>Watershed Explorer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/maplibre-gl@6.16.0/dist/maplibre-gl.css"
+    >
+    <link rel="stylesheet" href="./css/style.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Watershed Explorer home">
+        <span class="brand-mark" aria-hidden="true">W</span>
+        <span>
+          <strong>Watershed Explorer</strong>
+          <small>Terrain &amp; hydrology</small>
+        </span>
+      </a>
+      <span class="topbar-note">30 m watershed analysis</span>
+    </header>
+
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="Map controls">
+        <section class="layer-picker">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Explore layers</p>
+              <h1>Map viewer</h1>
+            </div>
+            <span id="layer-count" class="count-pill">Loading</span>
+          </div>
+
+          <label class="field-label" for="layer-select">Active layer</label>
+          <select id="layer-select" disabled>
+            <option>Loading layer catalogue…</option>
+          </select>
+
+          <div class="layer-navigation">
+            <button id="previous-layer" class="button button-muted" type="button" disabled>
+              <span aria-hidden="true">←</span> Previous
+            </button>
+            <span id="layer-position" class="position-label">— / —</span>
+            <button id="next-layer" class="button button-muted" type="button" disabled>
+              Next <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <h2>Map controls</h2>
+          <label class="field-label" for="basemap-select">Basemap</label>
+          <select id="basemap-select">
+            <option value="osm">OpenStreetMap</option>
+            <option value="eox">Sentinel-2 cloudless (EOX, 2025)</option>
+            <option value="none">None</option>
+          </select>
+
+          <label class="range-label" for="opacity-slider">
+            <span>Layer opacity</span>
+            <output id="opacity-value" for="opacity-slider">85%</output>
+          </label>
+          <input id="opacity-slider" type="range" min="0" max="100" value="85">
+
+          <label class="check-row" for="dim-outside">
+            <input id="dim-outside" type="checkbox">
+            <span>Dim outside watershed</span>
+          </label>
+          <label class="check-row" for="show-boundary">
+            <input id="show-boundary" type="checkbox" checked>
+            <span>Watershed boundary</span>
+          </label>
+          <label class="check-row" for="show-outlet">
+            <input id="show-outlet" type="checkbox" checked>
+            <span>Snapped outlet</span>
+          </label>
+        </section>
+
+        <section class="control-section view-section">
+          <div class="section-title-row">
+            <h2>View</h2>
+            <div class="segmented-control" role="group" aria-label="Map view">
+              <button id="view-2d" type="button" aria-pressed="true">2D</button>
+              <button id="view-3d" type="button" aria-pressed="false">3D</button>
+            </div>
+          </div>
+          <label class="range-label" for="exaggeration-slider">
+            <span>Terrain exaggeration</span>
+            <output id="exaggeration-value" for="exaggeration-slider">1.5×</output>
+          </label>
+          <input id="exaggeration-slider" type="range" min="0" max="3" step="0.1" value="1.5" disabled>
+          <p class="hint">3D terrain uses global Terrarium elevation tiles.</p>
+        </section>
+
+        <section class="legend-section" aria-live="polite">
+          <div class="section-title-row">
+            <h2>Legend</h2>
+            <span id="legend-units" class="legend-units"></span>
+          </div>
+          <div id="legend-ramp" class="legend-ramp" role="img" aria-label="Layer colour legend"></div>
+          <div class="legend-ticks">
+            <span id="legend-min">—</span>
+            <span id="legend-max">—</span>
+          </div>
+          <p id="legend-note" class="hint"></p>
+        </section>
+
+        <section class="description-section">
+          <p class="eyebrow">About this layer</p>
+          <h2 id="layer-title">Loading layer…</h2>
+          <p id="layer-description" class="description-text"></p>
+        </section>
+
+        <section class="readout-section" aria-live="polite">
+          <p class="eyebrow">Click the map for a value</p>
+          <p id="value-readout" class="value-readout">Choose a layer, then click within the watershed.</p>
+        </section>
+      </aside>
+
+      <section class="map-panel" aria-label="Interactive watershed map">
+        <div class="map-toolbar">
+          <div class="map-toolbar-title">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span id="map-layer-title">Loading watershed data…</span>
+          </div>
+          <button id="reset-view" class="button button-light" type="button" title="Zoom to watershed">
+            Zoom to watershed
+          </button>
+        </div>
+        <div id="map" role="application" aria-label="Interactive watershed map"></div>
+        <div id="loading-indicator" class="map-message">
+          <span class="spinner" aria-hidden="true"></span>
+          Loading map data…
+        </div>
+        <div id="error-message" class="map-error" role="alert" hidden></div>
+        <div class="attribution-note">
+          <span><strong>EOX:</strong> Contains modified Copernicus Sentinel data 2025.
+            EOxCloudless © EOX IT Services GmbH, released under the
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+            For commercial usage see <a href="https://cloudless.eox.at" target="_blank" rel="noopener noreferrer">cloudless.eox.at</a>.
+          </span>
+          <span><strong>EOX WMTS attribution:</strong> Data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors and others</a>,
+            Rendering © <a href="https://eox.at" target="_blank" rel="noopener noreferrer">EOX</a>
+            (<a href="https://maps.eox.at/#data" target="_blank" rel="noopener noreferrer">data details</a>).
+          </span>
+          <span><strong>OpenStreetMap:</strong> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>.</span>
+          <span><strong>Terrain:</strong> © <a href="https://www.mapzen.com/rights" target="_blank" rel="noopener noreferrer">Mapzen</a>,
+            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>, and
+            <a href="https://mapzen.com/rights/#services-and-data-sources" target="_blank" rel="noopener noreferrer">others</a>.
+            Global GMTED2010 and SRTM terrain data courtesy of the U.S. Geological Survey
+            (<a href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noopener noreferrer">terrain attribution details</a>);
+            tiles hosted by <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener noreferrer">AWS Open Data</a>.
+          </span>
+        </div>
+      </section>
+    </main>
+
+    <div id="global-error" class="global-error" role="alert" hidden></div>
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>

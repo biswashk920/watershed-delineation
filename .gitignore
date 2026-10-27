@@ -31,6 +31,10 @@ Preprocessing/*
 Pre processing/*
 !Pre processing/.gitkeep
 
+# GitHub Pages publishes the viewer and all runtime data from docs/.
+!/docs/
+!/docs/**
+
 # Editor and operating-system files
 .vscode/
 .idea/
