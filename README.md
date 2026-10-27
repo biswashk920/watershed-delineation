@@ -83,6 +83,42 @@ The workflow writes its files into three project folders:
 Generated rasters and vectors are excluded from Git; PNG figures are kept so
 they can be viewed directly in the repository. See [`.gitignore`](.gitignore).
 
+## Project structure
+
+```text
+.
+├── docs/                         # GitHub Pages interactive viewer
+│   ├── index.html
+│   ├── css/
+│   │   └── style.css
+│   ├── js/                       # Viewer modules
+│   └── data/
+│       ├── layers.json
+│       ├── boundary.geojson
+│       ├── outlet.geojson
+│       ├── streams.geojson
+│       ├── tiles/                # PMTiles archives for the feature layers
+│       └── block/                # Exported terrain and layer assets
+├── Input Data/                   # Selected area, outlet, and source DEM
+├── notebooks/
+│   ├── 01_GEE_Data_Acquisation.ipynb
+│   ├── 02_watershedDelineation.ipynb
+│   ├── 03_Features_of_Watershed.ipynb
+│   ├── 04_Web_Export.ipynb
+│   ├── plots.py
+│   └── webexport.py
+├── Output Data/                  # Watershed outputs, feature rasters and figures
+├── Preprocessing/                # Intermediate rasters and snapped outlet
+├── tools/
+│   └── serve_docs.py             # Local preview server with byte-range support
+├── requirements.txt
+└── README.md
+```
+
+The viewer is served from `docs/`; its exported data in `docs/data/` is required
+for the live GitHub Pages site. Run `python tools\serve_docs.py` from the
+repository root to preview it locally.
+
 ## Watershed overview
 
 The first image shows the watershed DEM with its boundary and outlet. The
